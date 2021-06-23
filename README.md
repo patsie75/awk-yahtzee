@@ -1,6 +1,9 @@
 # awk-yahtzee
 Yahtzee in GAWK
 
+requires gawk version 5.0 or later (Using 'namespace')  
+
+
 You have three rolls each turn. On the first two rolls you can 'hold' either one of the 5 die  
 
     hold 1/2/3/4/5: 135
