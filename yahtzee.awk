@@ -3,52 +3,83 @@
 @namespace "yahtzee"
 
 BEGIN {
-  label[1] = "Ones"
-  label[2] = "Twos"
-  label[3] = "Threes"
-  label[4] = "Fours"
-  label[5] = "Fives"
-  label[6] = "Sixes"
-  label[7] = "Three of a Kind"
-  label[8] = "Four of a Kind"
-  label[9] = "Full House"
-  label[10] = "Small Straight"
-  label[11] = "Large Straight"
-  label[12] = "Yahtzee"
-  label[13] = "Chance"
+  str[1] = "Ones"
+  str[2] = "Twos"
+  str[3] = "Threes"
+  str[4] = "Fours"
+  str[5] = "Fives"
+  str[6] = "Sixes"
+  str[7] = "Three of a Kind"
+  str[8] = "Four of a Kind"
+  str[9] = "Full House"
+  str[10] = "Small Straight"
+  str[11] = "Large Straight"
+  str[12] = "Yahtzee"
+  str[13] = "Chance"
+  str[14] = "Scorecard"
+  str[15] = "Bonus if score >=63"
+  str[16] = "Total score"
 }
 
+## calculate the size of an array
 function sizeof(arr,    i, cnt)
 {
   for (i in arr) cnt++
   return cnt;
 }
 
-function roll(dice,    n, i)
+## roll 5 dice randomly (excluding "held" dice)
+function dice_rnd(dice,    n, i)
 {
-  n = sizeof(dice["val"])
-
-  for (i=1; i<=n; i++)
+  for (i=1; i<=5; i++)
   {
     if (!dice["hold"][i])
       dice["val"][i] = int(rand() * 6) + 1
   }
 }
 
-function show(dice,    n, i)
-{
-  printf("die: ")
-  for (i=1; i<=5; i++)
-    printf("(%d) ", i)
-  printf("\n")
 
-  printf("val: ")
+function dice_roll(dice, score,    d, i, r, row)
+{
+  doroll = 1
   for (i=1; i<=5; i++)
-    printf("%c%d%c ", dice["hold"][i] ? "[" : " ", dice["val"][i], dice["hold"][i] ? "]" : " ")
-  printf("\n")
+    if (dice["hold"][i] == 0)
+      doroll = 10
+
+  for (r=1; r<=doroll; r++)
+  {
+    # roll the dice and print scorecard
+    dice_rnd(dice)
+    printf("\033[H")
+    scorecard_print(dice, score)
+
+    # determine dots on dice
+    delete d
+    for (i=1; i<=5; i++)
+    {
+      if (dice["val"][i] % 2) d[i][5] = 1
+      if (dice["val"][i] > 1) d[i][1] = d[i][9] = 1
+      if (dice["val"][i] > 3) d[i][3] = d[i][7] = 1
+      if (dice["val"][i] > 5) d[i][4] = d[i][6] = 1
+    }
+  
+    # draw top row
+    for (i=1; i<=5; i++)
+      printf("\033[91m▄▄▄▄▄▄▄\033[0m   ")
+    printf("\n")
+  
+    # draw dice
+    for (row=0; row<3; row++)
+    {
+      for (i=1; i<=5; i++)
+        printf("\033[107;101m %c %c %c \033[0m   ", d[i][row*3+1] ? "▀" : " ", d[i][row*3+2] ? "▀" : " ", d[i][row*3+3] ? "▀" : " ")
+      printf("\n")
+    }
+    system("sleep 0.1")
+  }
 }
 
-function hold(dice,    n, i, x, arr)
+function dice_hold(dice,    n, i, x, arr)
 {
   printf("hold 1/2/3/4/5: ")
   if (getline > 0)
@@ -167,19 +198,19 @@ function scorecard_print(dice, score,    n, i, sum)
 {
   sum = 0
 
-  printf("\n---[ scorecard ]-------------------------\n")
+  printf("\n---[ %s ]-------------------------\n", str[14])
   for (i=1; i<=6; i++)
   {
     split(check(dice, i), n, ":")
     if (score[i] == -1)
-      printf("-> [%2d] %-20s: %3s (%2s)\n", i, label[i], "...", (n[2] != -1) ? n[2] : 0)
+      printf("-> [%2d] %-20s: %3s (%2s)\n", i, str[i], "...", (n[2] != -1) ? n[2] : 0)
     else
-      printf("   [%2d] %-20s: %3s\n", i, label[i], score[i])
+      printf("   [%2d] %-20s: %3s\n", i, str[i], score[i])
 
     sum += (score[i] == -1) ? 0 : score[i]
   }
 
-  printf("        %-20s: %3d (%2s)\n", "Bonus if score >=63", (sum >=63) ? 35 : 0, sum)
+  printf("        %-20s: %3d (%2s)\n", str[15], (sum >=63) ? 35 : 0, sum)
   if (sum >= 63)
     sum += 35
 
@@ -187,12 +218,12 @@ function scorecard_print(dice, score,    n, i, sum)
   {
     split(check(dice, i), n, ":")
     if (score[i] == -1)
-      printf("-> [%2d] %-20s: %3s (%2s)\n", i, label[i], "...", (n[2] != -1) ? n[2] : 0)
+      printf("-> [%2d] %-20s: %3s (%2s)\n", i, str[i], "...", (n[2] != -1) ? n[2] : 0)
     else
-      printf("   [%2d] %-20s: %3s\n", i, label[i], score[i])
+      printf("   [%2d] %-20s: %3s\n", i, str[i], score[i])
     sum += (score[i] == -1) ? 0 : score[i]
   }
-  printf("        %-20s: %3d\n", "Total score", sum)
+  printf("        %-20s: %3d\n", str[16], sum)
 }
 
 function scorecard_choose(dice, score,     i, n)
@@ -221,10 +252,7 @@ function scorecard_choose(dice, score,     i, n)
 function dice_reset(dice,    i)
 {
   for (i=1; i<=5; i++)
-  {
-    dice["val"][i] = 1
     dice["hold"][i] = 0
-  }
 }
 
 
@@ -232,32 +260,27 @@ function dice_reset(dice,    i)
 BEGIN {
   srand()
 
-  for (i=1; i<=5; i++)
-    empty["val"][i] = -1
-
+  # reset scorecard values
   for (i=1; i<=13; i++)
     score[i] = -1
 
+  # 13 scores is 13 turns
   for (turn=1; turn<=13; turn++)
   {
+    
     yahtzee::dice_reset(dice)
 
     for (roll=1; roll<=2; roll++)
     {
       printf("\033[2J\033[HTurn %2d/13 roll %d/3\n", turn, roll)
-      yahtzee::roll(dice)
-      yahtzee::show(dice)
-      yahtzee::scorecard_print(empty, score)
-      yahtzee::hold(dice)
+      yahtzee::dice_roll(dice, score)
+      yahtzee::dice_hold(dice)
     }
     printf("\033[2J\033[HTurn %2d/13 roll %d/3\n", turn, roll)
-    yahtzee::roll(dice)
-    yahtzee::show(dice)
-    yahtzee::scorecard_print(dice, score)
+    yahtzee::dice_roll(dice, score)
     yahtzee::scorecard_choose(dice, score)
   }
 
-  printf("\033[2J\033[HTurn %2d/13 roll %d/3\n", turn, roll)
-  yahtzee::show(dice)
-  yahtzee::scorecard_print(dice, score)
+#  printf("\033[2J\033[HTurn %2d/13 roll %d/3\n", turn, roll)
+#  yahtzee::dice_roll(dice, score)
 }
