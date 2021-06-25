@@ -10,11 +10,16 @@ You have three rolls each turn. On the first two rolls you can 'hold' either one
 
 Will hold dice 1, 3 and 5 but will reroll dice 2 and 4
 
+![awk-yahtzee image01](/screenshots/awk-yahtzee01.png)
+
+
 After three dice rolls you are presented with a prompt:
 
     choose score:
 
 Pick a number between 1 and 13, matching on your scorecard to add the score to this particular choice.
+
+![awk-yahtzee image02](/screenshots/awk-yahtzee02.png)
 
 After 13 turns, each of your scorecard entries has been filled in and you will be presented with your total score.
 
