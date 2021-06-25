@@ -23,3 +23,4 @@ Pick a number between 1 and 13, matching on your scorecard to add the score to t
 
 After 13 turns, each of your scorecard entries has been filled in and you will be presented with your total score.
 
+Here's a YouTube video of the game: https://youtu.be/HhGhpCQTgu8
