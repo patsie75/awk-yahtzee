@@ -94,7 +94,7 @@ function dice_roll(dice, score,    d, i, r, row)
 ## ask which dice to "hold"
 function dice_hold(dice,    n, i, x, arr)
 {
-  printf("%s 1/2/3/4/5: ", str[19])
+  printf("%s 1-6: ", str[19])
   if (getline > 0)
   {
     # no input, everything stays the same
