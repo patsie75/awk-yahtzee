@@ -107,8 +107,19 @@ function dice_hold(dice,    n, i, x, arr)
     x = split($1, arr, "")
     for (i=1; i<=x; i++)
     {
-      if (arr[i] in dice["hold"])
-        dice["hold"][arr[i]] = 1
+      ## old-style index hold
+      # if (arr[i] in dice["hold"])
+      #   dice["hold"][arr[i]] = 1
+
+      ## new style "value" hold
+      for (n=1; n<=5; n++)
+      {
+        if ( (arr[i] == dice["val"][n]) && !dice["hold"][n])
+        {
+          dice["hold"][n] = 1
+          break
+        }
+      }
     }
   }
 }
