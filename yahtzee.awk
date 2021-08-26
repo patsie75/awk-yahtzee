@@ -24,14 +24,43 @@ BEGIN {
   str[19] = "Hold"
   str[20] = "Choose score"
   str[21] = "Top-10 highscores"
+
+  color["black"]   = 30
+  color["red"]     = 31
+  color["green"]   = 32
+  color["yellow"]  = 33
+  color["blue"]    = 34
+  color["magenta"] = 35
+  color["cyan"]    = 36
+  color["white"]   = 37
+
+  color["bright"]  = 60
+
+  color["dice"] = ENVIRON["dice"] ? color[ENVIRON["dice"]] : color["red"]
+  color["dots"] = ENVIRON["dots"] ? color[ENVIRON["dots"]] : color["white"] + color["bright"]
 }
 
-## calculate the size of an array
-function sizeof(arr,    i, cnt)
+## overwrite language strings with localized translations
+function loadlang(str, lang)
 {
-  for (i in arr) cnt++
-  return cnt;
+  # read file from lang folder
+  f = "lang/" lang ".lang"
+  while ((getline <f) > 0)
+  {
+    # skip comments, read key=value fields
+    if ( ($0 !~ /^ *(#|;)/) && (match($0, /([^=]+)=(.+)/, keyval) > 0) )
+    {
+      # strip leading and trailing spaces and double-quotes
+      gsub(/^\s*"?|"?\s*$/, "", keyval[1])
+      gsub(/^\s*"?|"?\s*$/, "", keyval[2])
+
+      # if key is in range of our translation strings, replace it
+      if ((int(keyval[1]) >= 1) && (int(keyval[1]) <= 21))
+        str[keyval[1]] = keyval[2]
+    }
+  }
 }
+
 
 ## roll 5 dice randomly (excluding "held" dice)
 function dice_rnd(dice,    n, i)
@@ -58,14 +87,14 @@ function dice_print(dice,    d, i, row) {
   
   # draw top row
   for (i=1; i<=5; i++)
-    printf("\033[91m▄▄▄▄▄▄▄\033[0m   ")
+    printf("\033[%sm▄▄▄▄▄▄▄\033[0m   ", color["dice"])
   printf("\n")
   
   # draw dice
   for (row=0; row<3; row++)
   {
     for (i=1; i<=5; i++)
-      printf("\033[107;101m %c %c %c \033[0m   ", d[i][row*3+1] ? "▀" : " ", d[i][row*3+2] ? "▀" : " ", d[i][row*3+3] ? "▀" : " ")
+      printf("\033[%d;%dm %c %c %c \033[0m   ", color["dots"], color["dice"]+10, d[i][row*3+1] ? "▀" : " ", d[i][row*3+2] ? "▀" : " ", d[i][row*3+3] ? "▀" : " ")
     printf("\n")
   }
 }
@@ -394,6 +423,9 @@ function printhighscore(highscore,    i)
 @namespace "awk"
 BEGIN {
   srand()
+
+  # load internationalisation strings based on LANG environment variable
+  yahtzee::loadlang(yahtzee::str, substr(ENVIRON["LANG"],1,5) )
 
   # read all-time highscores
   yahtzee::readhighscore(highscore)
