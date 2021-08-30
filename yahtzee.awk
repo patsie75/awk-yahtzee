@@ -36,12 +36,21 @@ BEGIN {
 
   color["bright"]  = 60
 
-  color["dice"] = ENVIRON["dice"] ? color[ENVIRON["dice"]] : color["red"]
-  color["dots"] = ENVIRON["dots"] ? color[ENVIRON["dots"]] : color["white"] + color["bright"]
+  color["dice"] = (ENVIRON["dice"] == "random") ? color[randcolor()] : (ENVIRON["dice"] in color) ? color[ENVIRON["dice"]] : color["red"]
+  color["dots"] = (ENVIRON["dots"] in color) ? color[ENVIRON["dots"]] : color["white"] + color["bright"]
+}
+
+function randcolor(    n, c, rnd)
+{
+  srand()
+
+  n = split("black red green yellow blue magenta cyan", c)
+  rnd = int(rand() * n) + 1
+  return c[rnd]
 }
 
 ## overwrite language strings with localized translations
-function loadlang(str, lang)
+function loadlang(str, lang,    f, keyval)
 {
   # read file from lang folder
   f = "lang/" lang ".lang"

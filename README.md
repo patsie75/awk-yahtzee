@@ -6,9 +6,9 @@ requires gawk version 5.0 or later (Using 'namespace')
 
 You have three rolls each turn. On the first two rolls you can 'hold' either one of the 5 die  
 
-    hold 1/2/3/4/5: 135
+    hold 1-6: 555
 
-Will hold dice 1, 3 and 5 but will reroll dice 2 and 4
+Will hold three dice with a 5 but will reroll the remaining dice
 
 ![awk-yahtzee image01](/screenshots/awk-yahtzee01.png)
 
